@@ -1,56 +1,97 @@
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var routes = require('./routes/index');
-var users = require('./routes/users');
-
 var app = express();
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+var recipes = {
+  1: {
+  "id": 1,
+  "title": "Spice Beer",
+  "author": "Leto Atreides",
+  "image": "http://bit.ly/1SoJYvb",
+  "ingredients": ["hops", "spice", "sandworm", "sugar", "yeast"],
+  "directions": ["Do a thing", "Do the next thing", "Finish up"],
+  "cookTime": 24,
+  "prepTime": 6,
+  "comments": [{
+    "author": "Duncan Idaho",
+    "text": "delicious!"
+  }, {
+    "author": "Benegessirit Mother",
+    "text": "gross!"
+  }]},
+  2: {
+  "id": 2,
+  "title": "Worm Roast",
+  "author": "Vladamir Harkonnen",
+  "image": "http://bit.ly/1P24cWY",
+  "ingredients": ["potatoes", "yams", "sandworm", "sage", "salt"],
+  "directions": ["Do a thing", "Do the next thing", "Finish up"],
+  "cookTime": 12,
+  "prepTime": 6,
+  "comments": [{
+    "author": "Duncan Idaho",
+    "text": "delicious!"
+  }, {
+    "author": "Benegessirit Mother",
+    "text": "gross!"
+  }]
+}};
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.get('/', function(req, res){
+  res.send('Welcome to Sandworm Connoisseur!');
 });
 
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
+app.route('/recipes')
+  .get(function(req, res){
+    res.json(recipes);
+  })
+  .post(function(req, res){
+    var id = 2;
+    id++;
+    recipes[id] = {
+      id: id,
+      title: req.body.title,
+      author: req.body.author,
+      image: req.body.image,
+      ingredients: req.body.ingredients,
+      directions: req.body.directions,
+      cookTime: req.body.cookTime,
+      prepTime: req.body.prepTime,
+    };
+    res.json(recipes[id]);
   });
-}
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
+app.route('/recipes/:id')
+  .get(function(req, res){
+    var id = req.params.id;
+    res.send(recipes[id]);
   });
+  // .put(function(req, res){
+  //   req.recipe.id = req.body.id;
+  //   req.recipe.title = req.body.title;
+  //   req.recipe.author = req.body.author;
+  //   req.recipe.image = req.body.image;
+  //   req.recipe.ingredients = req.body.ingredients;
+  //   req.recipe.directions = req.body.directions;
+  //   req.recipe.prepTime = req.body.prepTime;
+  //   req.recipe.cookTime = req.body.cookTime;
+  //   res.json(req.recipe);
+  // })
+  // .delete( function(req, res) {
+  //   //delete recipe
+  // });
+
+app.listen(3000, function(){
+  console.log('Listening on port 3000');
 });
-
 
 module.exports = app;
